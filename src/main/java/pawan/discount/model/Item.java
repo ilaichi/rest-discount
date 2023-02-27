@@ -1,7 +1,6 @@
 package pawan.discount.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 /**

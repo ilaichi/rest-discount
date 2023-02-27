@@ -30,12 +30,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 import pawan.discount.model.Discount;
-import pawan.discount.model.DiscountedCost;
 import pawan.discount.model.Item;
 import pawan.discount.model.ItemCostDiscount;
 import pawan.discount.model.ItemCountDiscount;
@@ -49,11 +50,12 @@ import pawan.discount.repository.DiscountRepository;
  * 
  * @author pawan
  */
+@SuppressWarnings("serial")
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DiscountControllerIT {
+class DiscountControllerIT {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -114,13 +116,15 @@ public class DiscountControllerIT {
 
 	void addDiscountSuccess(Discount discount) throws Exception {
 
-		mockMvc.perform(post(DISCOUNTS_URI).contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(discount))).andExpect(status().isOk());
+		MvcResult callResult = mockMvc.perform(post(DISCOUNTS_URI).contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(discount))).andExpect(status().isOk()).andReturn();
 
+		log.info("Call result: {}", callResult.getResponse().getContentAsString());
+		
 		Optional<Discount> result = discountRepository.findById(discount.getCode());
 
 		assertThat(result).isPresent();
-		log.info("Result: {}", result.get());
+		log.info("Retrieved discount: {}", result.get());
 		assertThat(discount.getCode()).isEqualTo(result.get().getCode());
 	}
 
@@ -135,37 +139,37 @@ public class DiscountControllerIT {
 	
 	@Test
 	void addDiscountFailure_zeroPercent() throws Exception {
-		Discount discount = new Discount(ITEM_COST_DISCOUNT_1.getCode(), ITEM_COST_DISCOUNT_1.getType(), 0);
+		Discount discount = new ItemCostDiscount(ITEM_COST_DISCOUNT_1.getCode(), ITEM_COST_DISCOUNT_1.getType(), 0, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
 	void addDiscountFailure_negativePercent() throws Exception {
-		Discount discount = new Discount(ITEM_COST_DISCOUNT_1.getCode(), ITEM_COST_DISCOUNT_1.getType(), -10);
+		Discount discount = new ItemCostDiscount(ITEM_COST_DISCOUNT_1.getCode(), ITEM_COST_DISCOUNT_1.getType(), -10, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
 	void addDiscountFailure_emptyCode() throws Exception {
-		Discount discount = new Discount("  ", ITEM_COST_DISCOUNT_1.getType(), 10);
+		Discount discount = new ItemCostDiscount("  ", ITEM_COST_DISCOUNT_1.getType(), 10, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
 	void addDiscountFailure_nullCode() throws Exception {
-		Discount discount = new Discount(null , ITEM_COST_DISCOUNT_1.getType(), 10);
+		Discount discount = new ItemCostDiscount(null , ITEM_COST_DISCOUNT_1.getType(), 10, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
 	void addDiscountFailure_emptyType() throws Exception {
-		Discount discount = new Discount(ITEM_COST_DISCOUNT_1.getCode(), " " , 10);
+		Discount discount = new ItemCostDiscount(ITEM_COST_DISCOUNT_1.getCode(), " " , 10, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
 	void addDiscountFailure_nullType() throws Exception {
-		Discount discount = new Discount(ITEM_COST_DISCOUNT_1.getCode(), null , 10);
+		Discount discount = new ItemCostDiscount(ITEM_COST_DISCOUNT_1.getCode(), null , 10, ITEM_COST_DISCOUNT_1.getMinCost());
 		addDiscountFailure(discount, HttpStatus.BAD_REQUEST.value());
 	}
 
@@ -274,7 +278,7 @@ public class DiscountControllerIT {
 				add(ITEM_COST_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(ITEM_TYPE_DISCOUNT_1.getCode(), 45);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(ITEM_TYPE_DISCOUNT_1.getCode(), 45);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}
@@ -295,7 +299,7 @@ public class DiscountControllerIT {
 				add(ITEM_COST_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(ITEM_COUNT_DISCOUNT_1.getCode(), 200);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(ITEM_COUNT_DISCOUNT_1.getCode(), 200);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}
@@ -315,7 +319,7 @@ public class DiscountControllerIT {
 				add(ITEM_COST_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(ITEM_COST_DISCOUNT_1.getCode(), 305);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(ITEM_COST_DISCOUNT_1.getCode(), 305);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}	
@@ -337,7 +341,7 @@ public class DiscountControllerIT {
 				add(ITEM_COST_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(ITEM_COST_DISCOUNT_1.getCode(), 2260);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(ITEM_COST_DISCOUNT_1.getCode(), 2260);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}	
@@ -353,7 +357,7 @@ public class DiscountControllerIT {
 		};
 
 		List<Discount> discounts = new ArrayList<>();
-		DiscountedCost expectedCost = new DiscountedCost(Discount.NO_DISCOUNT_CODE, 2650);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(Discount.NO_DISCOUNT_CODE, 2650);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}	
@@ -374,7 +378,7 @@ public class DiscountControllerIT {
 				add(ITEM_COST_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(Discount.NO_DISCOUNT_CODE, 65);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(Discount.NO_DISCOUNT_CODE, 65);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}	
@@ -392,14 +396,14 @@ public class DiscountControllerIT {
 				add(ITEM_COUNT_DISCOUNT_1);
 			}
 		};
-		DiscountedCost expectedCost = new DiscountedCost(Discount.NO_DISCOUNT_CODE, 2000);
+		DiscountedCostDto expectedCost = new DiscountedCostDto(Discount.NO_DISCOUNT_CODE, 2000);
 
 		findBestDiscountSuccess(lineItems, discounts, expectedCost);
 	}	
 	
 	
 	// utility method
-	private void findBestDiscountSuccess(List<LineItem> lineItems, List<Discount> discounts, DiscountedCost expectedCost)
+	private void findBestDiscountSuccess(List<LineItem> lineItems, List<Discount> discounts, DiscountedCostDto expectedCost)
 			throws Exception {
 		// save the discounts
 		discounts.stream().forEach(d -> discountRepository.save(d));

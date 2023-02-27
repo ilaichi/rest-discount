@@ -20,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 
 @Slf4j
 @Entity
@@ -28,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Discount {
+public abstract class Discount {
 
 	// discount types
 	public static final String TYPE_ITEM_TYPE = "ITEM_TYPE";
@@ -46,7 +47,7 @@ public class Discount {
 
 	@NotNull
 	@Min(1)
-	private int percent;
+	private Integer percent;
 
 	/**
 	 * Calculates the total cost for given line items without applying any discounts
@@ -68,9 +69,7 @@ public class Discount {
 	 * @param lineItems
 	 * @return
 	 */
-	public Optional<DiscountedCost> calculateDiscount(List<LineItem> lineItems) {
-		return Optional.empty();
-	}
+	public abstract Optional<DiscountedCostDto> calculateDiscount(List<LineItem> lineItems);
 	
 	// naming isValid makes it appear like an attribute
 	public boolean checkValid() {

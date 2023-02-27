@@ -15,9 +15,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscountDto extends DiscountResponseDto {
-	private int itemId;
-	private int minCount;
-	private String itemType;
-	private double minCost;
+public class DiscountResponseDto extends DiscountCodeDto {
+	private String type;
+	private int percent;	
 }

@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 
 /**
  * Discount based on item cost. If the item cost equals or exceeds a specified minimum then 
@@ -42,7 +43,7 @@ public class ItemCostDiscount extends Discount {
 	 * Calculate discount amount on line items using this item cost discount. 
 	 */
 	@Override
-	public Optional<DiscountedCost> calculateDiscount(List<LineItem> lineItems) {
+	public Optional<DiscountedCostDto> calculateDiscount(List<LineItem> lineItems) {
 
 		log.info("Discount: {}", this);
 
@@ -57,7 +58,7 @@ public class ItemCostDiscount extends Discount {
 
 		double discount = 0.01 * getPercent() * itemsTotalCost;
 
-		return Optional.of(new DiscountedCost(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
+		return Optional.of(new DiscountedCostDto(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
 	}
 	
 	@Override

@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 import pawan.discount.exception.MalformedRequestException;
 
 @Slf4j
@@ -41,7 +42,7 @@ public class ItemCountDiscount extends Discount {
 	 * Calculate discount amount on line items using this item count discount. 
 	 */
 	@Override
-	public Optional<DiscountedCost> calculateDiscount(List<LineItem> lineItems) {
+	public Optional<DiscountedCostDto> calculateDiscount(List<LineItem> lineItems) {
 		
 		log.info("Discount: {}", this);
 		
@@ -71,7 +72,7 @@ public class ItemCountDiscount extends Discount {
 			double discount = itemCostCountEntry.getValue() >= minCount ? 
 					0.01 * getPercent() * itemCostCountEntry.getValue() * itemCostCountEntry.getKey() : 0;
 			
-			return Optional.of(new DiscountedCost(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
+			return Optional.of(new DiscountedCostDto(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
 		} 
 	}
 	

@@ -8,10 +8,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 import pawan.discount.exception.DuplicateResourceException;
 import pawan.discount.exception.MalformedRequestException;
 import pawan.discount.model.Discount;
-import pawan.discount.model.DiscountedCost;
 import pawan.discount.model.LineItem;
 import pawan.discount.repository.DiscountRepository;
 
@@ -35,7 +35,7 @@ public class DiscountService {
 		discountRepository.findById(discount.getCode())
 		.ifPresent(s -> {
                 throw new DuplicateResourceException("Discount already present with code: " + discount.getCode());
-            });;
+            });
 		
     	return discountRepository.save(discount);
 	}
@@ -55,7 +55,7 @@ public class DiscountService {
 	 * @param lineItems
 	 * @return
 	 */
-	public DiscountedCost findBestDiscount(List<LineItem> lineItems) {
+	public DiscountedCostDto findBestDiscount(List<LineItem> lineItems) {
 
 		if (lineItems.isEmpty()) {
 			throw new MalformedRequestException("At least one line item is required.");
@@ -76,13 +76,13 @@ public class DiscountService {
 		 */
 		List<Discount> discounts = getAllDiscounts();
 		
-		Optional<DiscountedCost> minCost = discounts.stream()
+		Optional<DiscountedCostDto> minCost = discounts.stream()
 		.map(d -> d.calculateDiscount(lineItems)) 
-		.filter(dc -> dc.isPresent())
-		.map(dc -> dc.get())
-		.reduce((x,y) -> minDC(x, y));
+		.filter(Optional::isPresent)
+		.map(Optional::get)
+		.reduce(this::minDC);
 		
-		DiscountedCost result = minCost.orElse(new DiscountedCost(Discount.NO_DISCOUNT_CODE, Discount.calculateTotalCost(lineItems)));
+		DiscountedCostDto result = minCost.orElse(new DiscountedCostDto(Discount.NO_DISCOUNT_CODE, Discount.calculateTotalCost(lineItems)));
 		
 		log.info("Min cost: {}", result);
 		
@@ -90,7 +90,7 @@ public class DiscountService {
 	}
 
 	
-	private DiscountedCost minDC(DiscountedCost a, DiscountedCost b) {
+	private DiscountedCostDto minDC(DiscountedCostDto a, DiscountedCostDto b) {
 		return a.amount() < b.amount() ? a : b;
 	}
 	
@@ -104,8 +104,5 @@ public class DiscountService {
 		} catch (EmptyResultDataAccessException e) {
 			// deleting non-existent entity, ignore
 		}
-		// less efficient
-    	//	discountRepository.findById(code).ifPresent(discountRepository::delete);
 	}
-
 }

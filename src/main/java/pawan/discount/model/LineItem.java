@@ -3,10 +3,7 @@ package pawan.discount.model;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
@@ -48,6 +45,6 @@ public class LineItem {
 
 	public static boolean areValid(List<LineItem> lineItems) {
 		return lineItems != null &&
-				!lineItems.stream().anyMatch(li -> !li.checkValid());
+				lineItems.stream().allMatch(LineItem::checkValid);
 	}
 }

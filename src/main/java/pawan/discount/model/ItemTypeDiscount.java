@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import pawan.discount.dto.DiscountedCostDto;
 
 @Slf4j
 @Entity
@@ -31,7 +32,7 @@ public class ItemTypeDiscount extends Discount {
 	}	
 	
 	@Override
-	public Optional<DiscountedCost> calculateDiscount(List<LineItem> lineItems) {
+	public Optional<DiscountedCostDto> calculateDiscount(List<LineItem> lineItems) {
 
 		log.info("Discount: {}", this);
 		
@@ -46,7 +47,7 @@ public class ItemTypeDiscount extends Discount {
 
 		double discount = itemTypeCost * 0.01 * getPercent();
 		
-		return Optional.of(new DiscountedCost(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
+		return Optional.of(new DiscountedCostDto(discount > 0 ? getCode() : Discount.NO_DISCOUNT_CODE, totalCost - discount));
 	}
 	
 	@Override

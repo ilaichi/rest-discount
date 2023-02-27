@@ -25,7 +25,7 @@ import pawan.discount.repository.DiscountRepository;
  * Tests for Discount service. These run without running Spring. 
  */
 @ExtendWith(MockitoExtension.class)
-public class DiscountServiceTest {
+class DiscountServiceTest {
 	@Mock
 	private DiscountRepository discountRepository;
 
@@ -74,6 +74,7 @@ public class DiscountServiceTest {
 
 		// then
 		// no exception
+		then(discountRepository).should().deleteById(anyString());
 	}
 
 	@Test
@@ -87,6 +88,7 @@ public class DiscountServiceTest {
 
 		// then
 		// no exception
+		then(discountRepository).should().deleteById(anyString());
 	}
 	
 }
