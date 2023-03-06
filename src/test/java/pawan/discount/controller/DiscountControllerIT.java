@@ -408,9 +408,9 @@ class DiscountControllerIT {
 		// save the discounts
 		discounts.stream().forEach(d -> discountRepository.save(d));
 
-		mockMvc.perform(get(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.header("lineItems", objectMapper.writeValueAsString(lineItems)))
+				.content(objectMapper.writeValueAsString(lineItems)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.discountCode").value(expectedCost.discountCode()))
 				.andExpect(jsonPath("$.amount").value(expectedCost.amount()));
@@ -506,24 +506,24 @@ class DiscountControllerIT {
 
 	@Test
 	void findBestDiscountFailure_noHeader() throws Exception {
-		mockMvc.perform(get(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
 	}	
 	
 	@Test
 	void findBestDiscountFailure_invalidLineItems() throws Exception {
-		mockMvc.perform(get(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.header("lineItems", "[{\"count\": 2, \"item\": {\"cost\": 20, \"type\": \"CLOTHES\"}}]")) 
+				.content("[{\"count\": 2, \"item\": {\"cost\": 20, \"type\": \"CLOTHES\"}}]")) 
 				.andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
 	}	
 
 	@Test
 	void findBestDiscountFailure_malformedLineItems() throws Exception {
-		mockMvc.perform(get(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.header("lineItems", "[{\"count\": 2, ")) 
+				.content("[{\"count\": 2, ")) 
 				.andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
 	}	
 	
@@ -533,9 +533,9 @@ class DiscountControllerIT {
 		// save the discounts
 		discounts.stream().forEach(d -> discountRepository.save(d));
 
-		mockMvc.perform(get(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post(BEST_DISCOUNT_URI).contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON)
-				.header("lineItems", objectMapper.writeValueAsString(lineItems)))
+				.content(objectMapper.writeValueAsString(lineItems)))
 				.andExpect(status().is(expectedStatus));
 	}	
 	

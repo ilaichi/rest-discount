@@ -2,6 +2,9 @@ package pawan.discount.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,14 +63,11 @@ public class DiscountController {
 	 * @return discount added
 	 */
 	@PostMapping("")
-	public DiscountResponseDto addDiscount(@RequestBody(required = true) DiscountDto discountDto) {
+	public DiscountResponseDto addDiscount(@Valid @RequestBody(required = true) DiscountDto discountDto) {
 		Discount discount = DiscountMapper.INSTANCE.mapToDiscount(discountDto);
 		
 		log.debug("Discount Request Body {}, Discount: {}", discountDto, discount);
 		
-		if (!discount.checkValid()) {
-			throw new MalformedRequestException("Discount must have non-empty code and type and percent must be more than 0. Additional fields are required depending on the discount type.");
-		}
 		discountService.addDiscount(discount);
 		
 		return DiscountMapper.INSTANCE.map(discount);
@@ -80,7 +80,7 @@ public class DiscountController {
 	 * @return code that was supplied
 	 */
 	@DeleteMapping("{code}")
-	public DiscountCodeDto deleteDiscount(@PathVariable(required = true) String code) {
+	public DiscountCodeDto deleteDiscount(@PathVariable(required = true) @NotBlank String code) {
 		discountService.deleteDiscount(code);
 		return new DiscountCodeDto(code);
 	}

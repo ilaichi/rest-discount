@@ -1,5 +1,8 @@
 package pawan.discount.dto;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +19,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiscountResponseDto extends DiscountCodeDto {
+	@NotBlank(message = "Discount type is mandatory.")
 	private String type;
+	
+	@Min(value = 1, message = "Discount percent should be 1 or more.")
 	private int percent;	
 }
