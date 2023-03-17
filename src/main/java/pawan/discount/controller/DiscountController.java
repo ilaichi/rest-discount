@@ -21,7 +21,6 @@ import pawan.discount.dto.DiscountResponseDto;
 import pawan.discount.dto.DiscountedCostDto;
 import pawan.discount.dto.LineItemDto;
 import pawan.discount.dto.LineItemMapper;
-import pawan.discount.exception.MalformedRequestException;
 import pawan.discount.model.Discount;
 import pawan.discount.model.LineItem;
 import pawan.discount.service.DiscountService;
@@ -38,7 +37,6 @@ public class DiscountController {
 	 * Constructor for injection 
 	 * 
 	 * @param ds discount service
-	 * @param om object mapper
 	 */
 	public DiscountController(DiscountService ds) {
 		discountService = ds;
